@@ -18,9 +18,21 @@ class Handler
 
   end
 
-  def self.unset conditon
+  def self.unset condition
 
-    @@conditions[condition].pop
+    @@conditions[condition[:name]].each_with_index do |saved_condition, index|
+
+      if saved_condition[:block] == condition[:block]
+        @@conditions[condition[:name]].delete_at index
+      end
+
+    end
+
+  end
+
+  def self.unset_all condition_name
+
+    @@condition[condition_name] = Hash.new
 
   end
 
@@ -46,7 +58,7 @@ def signal condition_name, *params
   Handler::get condition_name do |block, raise|
 
     value = block.call
-    raise ConditionHandledError, value if raise
+    raise(ConditionHandledError, value) if raise
 
   end
 
@@ -62,28 +74,56 @@ def error condition, *params
 
 end
 
+def parse_conditions conditions
+  
+  without_proc = []
+  parsed = []
 
-def handle *conditions, &block
+  conditions.each do |condition|
 
-  begin
-    
-    # register the conditions
-    conditions.each do |handler|
+    if condition.is_a? Hash
 
-      condition = handler.shift
-      Handler::set({:name => condition.fetch(0),
-                    :block => condition.fetch(1),
-                    :raise => true})
+      condition.each do |condition_name, condition_proc|
+
+        without_proc.each do |condition_name|
+          parsed.push :name => condition_name, :block => condition_proc
+        end
+
+        parsed.push :name => condition_name, :block => condition_proc
+
+      end
+
+      without_proc.clear
+
+    else
+
+      without_proc.push condition
       
     end
 
-    value = block.call
+  end
 
+  parsed
+
+end
+
+
+def handle *conditions, &block
+
+  conditions = parse_conditions conditions
+
+  conditions.each do |condition|
+    Handler::set condition.merge! :raise => true
+  end
+
+  value = begin
+    block.call
   rescue ConditionHandledError => ex
+    ex.value
+  end
 
-    # return the handler's value
-    value = ex.value
-
+  conditions.each do |condition|
+    Handler::unset condition
   end
 
   value

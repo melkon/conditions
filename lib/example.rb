@@ -4,18 +4,37 @@ require "./conditions"
 #  usage
 # #########
 
-p (handle :condition => lambda {
+value = handle :condition => lambda {
 
-  "hallo"
+  "foo"
 
 } do
 
-  error :condition, "condition error" if 0 == 1
+  error :condition
 
-  "welt"
+  "bar"
 
-end)
+end
 
+p value
+
+value = handle :condition, {:another => lambda {
+
+  "foo"
+
+}}, :yet_another, {:last => lambda {
+
+  "bar"
+
+}} do
+
+  error :yet_another
+
+  "baz"
+
+end
+
+p value
 
 
 
