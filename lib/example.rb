@@ -41,21 +41,26 @@ handle :condition, {:another => lambda {
 
 end
 
+func = lambda { "foo" }
+
+bind :condition => func
+
+# "foo"
+p(signal :condition)
+
+unbind :condition => func
+
+# nil
+p(signal :condition)
+
+=begin
+
 #restart :restart => proc {},
 #         :another_restart => proc {} do
 #
 #  error :condition
 #
 #end
-
-
-=begin
-
-bind :condition => lambda {|block|
-
-
-} do
-
 
 end
 

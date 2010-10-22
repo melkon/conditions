@@ -50,10 +50,7 @@ class Handler
 
 end
 
-class ConditionError < StandardError; end
 class ConditionNotHandledError < StandardError; end
-class NoConditionHandlerError < StandardError; end
-
 class ConditionHandledError < StandardError
 
   attr_accessor :value, :condition
@@ -64,30 +61,6 @@ class ConditionHandledError < StandardError
     @condition = info[:condition]
 
   end
-
-end
-
-def signal condition_name, *params
-
-  value = nil
-
-  Handler::get condition_name do |condition|
-
-    value = condition[:block].call
-
-    raise(ConditionHandledError, :value => value, :condition => condition) if condition[:raise]
-
-  end
-
-  value
-
-end
-
-def error condition, *params
-
-  signal condition, *params
-
-  raise ConditionNotHandledError, *params
 
 end
 
@@ -124,6 +97,29 @@ def parse_conditions conditions
 
 end
 
+def signal condition_name, *params
+
+  value = nil
+
+  Handler::get condition_name do |condition|
+
+    value = condition[:block].call
+
+    raise(ConditionHandledError, :value => value, :condition => condition) if condition[:raise]
+
+  end
+
+  value
+
+end
+
+def error condition, *params
+
+  signal condition, *params
+
+  raise ConditionNotHandledError, *params
+
+end
 
 def handle *conditions, &block
 
@@ -146,4 +142,40 @@ def handle *conditions, &block
 
   value
 
+end
+
+def bind *conditions, &block
+
+  conditions = parse_conditions conditions
+
+  conditions.each do |condition|
+    Handler::set condition.merge! :raise => false
+  end
+  
+  value = true
+
+  if block_given? then
+
+    value = block.call
+
+    conditions.each do |condition|
+      Handler::unset condition
+    end
+
+  end
+
+  value
+
+end
+
+def unbind *conditions
+
+  conditions = parse_conditions conditions
+
+  conditions.each do |condition|
+    Handler::unset condition
+  end
+
+  true
+  
 end
