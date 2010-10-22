@@ -1,24 +1,31 @@
-require "./conditions"
+require "conditions"
 
 # #########
 #  usage
 # #########
 
-value = handle :condition => lambda {
+# returns "foo"
 
-  "foo"
+handle :condition => lambda { signal :another_condition } do
 
-} do
+  handle :condition => lambda {
 
-  error :condition
+    error :condition
 
-  "bar"
+    "foo"
 
+  } do
+
+    error :condition
+
+    "bar"
+
+  end
+  
 end
 
-p value
-
-value = handle :condition, {:another => lambda {
+# returns "bar"
+handle :condition, {:another => lambda {
 
   "foo"
 
@@ -34,8 +41,12 @@ value = handle :condition, {:another => lambda {
 
 end
 
-p value
-
+#restart :restart => proc {},
+#         :another_restart => proc {} do
+#
+#  error :condition
+#
+#end
 
 
 =begin

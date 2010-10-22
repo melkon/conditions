@@ -4,8 +4,15 @@ class Handler
 
   def self.get condition_name
 
+    return nil if (!@@conditions.has_key?(condition_name) or @@conditions[condition_name].empty?)
+
     @@conditions[condition_name].reverse_each do |condition|
-      yield condition[:block], condition[:raise]
+
+      condition[:name] = condition_name
+      self.unset condition
+      
+      yield condition
+
     end
 
   end
@@ -14,7 +21,7 @@ class Handler
 
     @@conditions[condition[:name]] = [] unless @@conditions[condition[:name]]
     @@conditions[condition[:name]].push({:block => condition[:block],
-                                          :raise => condition[:raise]})
+                                           :raise => condition[:raise]})
 
   end
 
@@ -23,7 +30,12 @@ class Handler
     @@conditions[condition[:name]].each_with_index do |saved_condition, index|
 
       if saved_condition[:block] == condition[:block]
+        
         @@conditions[condition[:name]].delete_at index
+
+        # unset only one condition
+        return true
+
       end
 
     end
@@ -40,14 +52,16 @@ end
 
 class ConditionError < StandardError; end
 class ConditionNotHandledError < StandardError; end
+class NoConditionHandlerError < StandardError; end
 
 class ConditionHandledError < StandardError
 
-  attr_accessor :value
+  attr_accessor :value, :condition
 
-  def initialize value
+  def initialize info
 
-    @value = value
+    @value = info[:value]
+    @condition = info[:condition]
 
   end
 
@@ -55,10 +69,13 @@ end
 
 def signal condition_name, *params
 
-  Handler::get condition_name do |block, raise|
+  value = nil
 
-    value = block.call
-    raise(ConditionHandledError, value) if raise
+  Handler::get condition_name do |condition|
+
+    value = condition[:block].call
+
+    raise(ConditionHandledError, :value => value, :condition => condition) if condition[:raise]
 
   end
 
@@ -119,11 +136,12 @@ def handle *conditions, &block
   value = begin
     block.call
   rescue ConditionHandledError => ex
+    removed_condition = ex.condition
     ex.value
   end
 
   conditions.each do |condition|
-    Handler::unset condition
+    Handler::unset condition unless condition == removed_condition
   end
 
   value
