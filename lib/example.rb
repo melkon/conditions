@@ -53,18 +53,25 @@ unbind :condition => func
 # nil
 p(signal :condition)
 
-=begin
+def hallo x
 
-#restart :restart => proc {},
-#         :another_restart => proc {} do
-#
-#  error :condition
-#
-#end
+  restart :restart => proc { x = hallo 0 },
+          :test => proc { x = hallo 0 - x } do
+
+    if x < 0 then
+      error :condition
+    else
+      x = x + 1
+    end
+
+  end
+
+  x
 
 end
 
-bind :condition => funciton
-unbind :condition => function
+bind :condition => lambda { invoke :test } do
 
-=end
+  p hallo -1
+
+end

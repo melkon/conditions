@@ -50,6 +50,57 @@ class Handler
 
 end
 
+class Restart
+
+  @@restarts = {}
+
+  def self.get restart_name
+
+    return nil if (!@@restarts.has_key?(restart_name) or @@restarts[restart_name].empty?)
+
+    @@restarts[restart_name].reverse_each do |restart|
+
+      restart[:name] = restart_name
+      self.unset restart
+      
+      yield restart
+
+    end
+
+  end
+
+  def self.set restart
+
+    @@restarts[restart[:name]] = [] unless @@restarts[restart[:name]]
+    @@restarts[restart[:name]].push({:block => restart[:block]})
+
+  end
+
+  def self.unset restart
+
+    @@restarts[restart[:name]].each_with_index do |saved_restart, index|
+
+      if saved_restart[:block] == restart[:block]
+        
+        @@restarts[restart[:name]].delete_at index
+
+        # unset only one restart
+        return true
+
+      end
+
+    end
+
+  end
+
+  def self.unset_all restart_name
+
+    @@restart[restart_name] = Hash.new
+
+  end
+
+end
+
 class ConditionNotHandledError < StandardError; end
 class ConditionHandledError < StandardError
 
@@ -178,4 +229,29 @@ def unbind *conditions
 
   true
   
+end
+
+def restart *restarts, &block
+
+  restarts = parse_conditions restarts
+
+  restarts.each { |restart|  Restart::set restart }
+
+  begin
+    block.call
+  rescue ConditionHandledError => ex
+    ex.value
+  end
+
+  restarts.each { |restart| Restart::unset restart }
+
+end
+
+# invoke has to throw a conditon if no restart is found
+def invoke restart_name
+
+  value = Restart::get(restart_name) { |restart| restart[:block].call }
+
+  raise ConditionHandledError, :value => value, :condition => restart_name
+
 end
