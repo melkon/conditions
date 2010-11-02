@@ -134,3 +134,25 @@ def parse_handlers handlers
   parsed
 
 end
+
+def generate_condition condition_name, *params
+
+  if !Kernel.const_defined? condition_name then
+
+    # @@todo: implement a notice if condition is dynamically created
+    # @@todo: mabye make use of restarts to let the user decide
+    Object::const_set(condition_name, Class.new(Condition) do
+
+      def initialize *params
+
+        @dynamic = true
+
+      end
+      
+    end)
+  
+  end
+  
+  Object::const_get(condition_name).new(*params)
+
+end

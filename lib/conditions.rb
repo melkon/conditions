@@ -1,15 +1,22 @@
 require "conditions_helpers"
 require "conditions_exceptions"
+require "conditions_class"
 
 def signal condition_name, *params
 
   value = nil
 
-  Handler::get condition_name do |condition|
+  condition = generate_condition condition_name, *params
 
-    value = condition[:block].call
+  Handler::get condition_name do |handler|
 
-    raise(ConditionHandledError, :value => value, :condition => condition) if condition[:raise]
+    value = case handler[:block].arity
+      when 0 then handler[:block].call
+      when 1 then handler[:block].call condition
+      when 2 then handler[:block].call condition, value
+    end
+
+    raise(ConditionHandledError, :value => value, :handler => handler) if handler[:raise]
 
   end
 

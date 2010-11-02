@@ -6,17 +6,17 @@ require "conditions"
 
 # returns "foo"
 
-handle :condition => lambda { signal :another_condition } do
+handle :Condition => lambda { signal :Another_condition } do
 
-  handle :condition => lambda {
+  handle :Condition => lambda {
 
-    error :condition
+    error :Condition
 
     "foo"
 
   } do
 
-    error :condition
+    error :Condition
 
     "bar"
 
@@ -25,17 +25,21 @@ handle :condition => lambda { signal :another_condition } do
 end
 
 # returns "bar"
-handle :condition, {:another => lambda {
+handle :Condition, {:Another => lambda { |condition|
+
+    p condition.dynamic
 
   "foo"
 
-}}, :yet_another, {:last => lambda {
+}}, :Yet_another, {:Last => lambda { |condition|
+
+    p condition.dynamic
 
   "bar"
 
 }} do
 
-  error :yet_another
+  error :Last
 
   "baz"
 
@@ -43,23 +47,23 @@ end
 
 func = lambda { "foo" }
 
-bind :condition => func
+bind :Condition => func
 
 # "foo"
-p(signal :condition)
+p(signal :Condition)
 
-unbind :condition => func
+unbind :Condition => func
 
 # nil
-p(signal :condition)
+p(signal :Condition)
 
 def hallo x
 
-  restart :restart => proc { x = hallo 0 },
-          :test => proc { x = hallo 0 - x } do
+  restart :Restart => proc { x = hallo 0 },
+           :Test => proc { x = hallo 0 - x } do
 
     if x < 0 then
-      error :condition
+      error :Condition
     else
       x = x + 1
     end
@@ -70,7 +74,7 @@ def hallo x
 
 end
 
-bind :condition => lambda { invoke :test } do
+bind :Condition => lambda { invoke :Test } do
 
   p hallo -1
 
