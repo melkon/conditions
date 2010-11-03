@@ -1,6 +1,8 @@
+# base condition class
+require "classes/Condition"
+
 require "conditions_helpers"
 require "conditions_exceptions"
-require "conditions_class"
 
 def signal condition_name, *params
 

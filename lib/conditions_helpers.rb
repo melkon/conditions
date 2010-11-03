@@ -141,15 +141,7 @@ def generate_condition condition_name, *params
 
     # @@todo: implement a notice if condition is dynamically created
     # @@todo: mabye make use of restarts to let the user decide
-    Object::const_set(condition_name, Class.new(Condition) do
-
-      def initialize *params
-
-        @dynamic = true
-
-      end
-      
-    end)
+    Object::const_set(condition_name, Class.new(ConditionDynamic))
   
   end
   

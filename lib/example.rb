@@ -27,19 +27,18 @@ end
 # returns "bar"
 handle :Condition, {:Another => lambda { |condition|
 
-    p condition.dynamic
-
   "foo"
 
 }}, :Yet_another, {:Last => lambda { |condition|
 
-    p condition.dynamic
+    p condition.get 0
+    p condition.trace
 
   "bar"
 
 }} do
 
-  error :Last
+  error :Last, "muff"
 
   "baz"
 
