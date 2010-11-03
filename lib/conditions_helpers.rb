@@ -1,15 +1,16 @@
 class Handler
 
-  @@conditions = {}
+  @@types = {:condition => {},
+             :restart   => {}}
 
-  def self.get condition_name
+  def self.get(type, condition_name)
 
-    return nil if (!@@conditions.has_key?(condition_name) or @@conditions[condition_name].empty?)
+    return nil if (!@@types[type].has_key?(condition_name) or @@types[type][condition_name].empty?)
 
-    @@conditions[condition_name].reverse_each do |condition|
+    @@types[type][condition_name].reverse_each do |condition|
 
       condition[:name] = condition_name
-      self.unset condition
+      self.unset(type, condition)
 
       yield condition
 
@@ -17,21 +18,21 @@ class Handler
 
   end
 
-  def self.set condition
+  def self.set(type, condition)
 
-    @@conditions[condition[:name]] = [] unless @@conditions[condition[:name]]
-    @@conditions[condition[:name]].push({:block => condition[:block],
+    @@types[type][condition[:name]] = [] unless @@types[type][condition[:name]]
+    @@types[type][condition[:name]].push({:block => condition[:block],
                                            :raise => condition[:raise]})
 
   end
 
-  def self.unset condition
+  def self.unset(type, condition)
 
-    @@conditions[condition[:name]].each_with_index do |saved_condition, index|
+    @@types[type][condition[:name]].each_with_index do |saved_condition, index|
 
       if saved_condition[:block] == condition[:block]
 
-        @@conditions[condition[:name]].delete_at index
+        @@types[type][condition[:name]].delete_at(index)
 
         # unset only one condition
         return true
@@ -42,67 +43,15 @@ class Handler
 
   end
 
-  def self.unset_all condition_name
+  def self.unset_all(type, condition_name)
 
-    @@condition[condition_name] = Hash.new
-
-  end
-
-end
-
-class Restart
-
-  @@restarts = {}
-
-  def self.get restart_name
-
-    return nil if (!@@restarts.has_key?(restart_name) or @@restarts[restart_name].empty?)
-
-    @@restarts[restart_name].reverse_each do |restart|
-
-      restart[:name] = restart_name
-      self.unset restart
-
-      yield restart
-
-    end
-
-  end
-
-  def self.set restart
-
-    @@restarts[restart[:name]] = [] unless @@restarts[restart[:name]]
-    @@restarts[restart[:name]].push({:block => restart[:block]})
-
-  end
-
-  def self.unset restart
-
-    @@restarts[restart[:name]].each_with_index do |saved_restart, index|
-
-      if saved_restart[:block] == restart[:block]
-
-        @@restarts[restart[:name]].delete_at index
-
-        # unset only one restart
-        return true
-
-      end
-
-    end
-
-  end
-
-  def self.unset_all restart_name
-
-    @@restart[restart_name] = Hash.new
+    @@types[type][condition_name] = Hash.new
 
   end
 
 end
 
-
-def parse_handlers handlers
+def parse_handlers(handlers)
 
   without_proc = []
   parsed = []
@@ -114,10 +63,10 @@ def parse_handlers handlers
       handler.each do |handler_name, handler_proc|
 
         without_proc.each do |handler_name|
-          parsed.push :name => handler_name, :block => handler_proc
+          parsed.push(:name => handler_name, :block => handler_proc)
         end
 
-        parsed.push :name => handler_name, :block => handler_proc
+        parsed.push(:name => handler_name, :block => handler_proc)
 
       end
 
@@ -125,7 +74,7 @@ def parse_handlers handlers
 
     else
 
-      without_proc.push handler
+      without_proc.push(handler)
 
     end
 
@@ -135,7 +84,7 @@ def parse_handlers handlers
 
 end
 
-def generate_condition condition_name, *params
+def generate_condition(condition_name, *params)
 
   if !Kernel.const_defined? condition_name then
 

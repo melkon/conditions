@@ -10,7 +10,7 @@ def signal condition_name, *params
 
   condition = generate_condition condition_name, *params
 
-  Handler::get condition_name do |handler|
+  Handler::get :condition, condition_name do |handler|
 
     value = case handler[:block].arity
       when 0 then handler[:block].call
@@ -39,7 +39,7 @@ def handle *conditions, &block
   conditions = parse_handlers conditions
 
   conditions.each do |condition|
-    Handler::set condition.merge! :raise => true
+    Handler::set(:condition, condition.merge!(:raise => true))
   end
 
   value = begin
@@ -50,7 +50,7 @@ def handle *conditions, &block
   end
 
   conditions.each do |condition|
-    Handler::unset condition unless condition == removed_condition
+    Handler::unset(:condition, condition) unless condition == removed_condition
   end
 
   value
@@ -62,7 +62,7 @@ def bind *conditions, &block
   conditions = parse_handlers conditions
 
   conditions.each do |condition|
-    Handler::set condition.merge! :raise => false
+    Handler::set(:condition, condition.merge!(:raise => false))
   end
   
   value = true
@@ -72,7 +72,7 @@ def bind *conditions, &block
     value = block.call
 
     conditions.each do |condition|
-      Handler::unset condition
+      Handler::unset(:condition, condition)
     end
 
   end
@@ -86,7 +86,7 @@ def unbind *conditions
   conditions = parse_handlers conditions
 
   conditions.each do |condition|
-    Handler::unset condition
+    Handler::unset(:condition, condition)
   end
 
   true
@@ -97,7 +97,7 @@ def restart *restarts, &block
 
   restarts = parse_handlers restarts
 
-  restarts.each { |restart|  Restart::set restart }
+  restarts.each { |restart|  Handler::set(:restart, restart)}
 
   begin
     block.call
@@ -105,14 +105,14 @@ def restart *restarts, &block
     ex.value
   end
 
-  restarts.each { |restart| Restart::unset restart }
+  restarts.each { |restart| Handler::unset(:restart, restart)}
 
 end
 
 # invoke has to throw a conditon if no restart is found
 def invoke restart_name
 
-  value = Restart::get(restart_name) { |restart| restart[:block].call }
+  value = Handler::get(:restart, restart_name) { |restart| restart[:block].call }
 
   raise ConditionHandledError, :value => value, :condition => restart_name
 
