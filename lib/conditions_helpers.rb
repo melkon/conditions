@@ -5,7 +5,7 @@ class Handler
 
   def self.get(type, condition_name)
 
-    return nil if (!@@types[type].has_key?(condition_name) or @@types[type][condition_name].empty?)
+    error(:NoHandlerFound, type, condition_name) if (!@@types[type].has_key?(condition_name) or @@types[type][condition_name].empty?)
 
     @@types[type][condition_name].reverse_each do |condition|
 

@@ -31,3 +31,20 @@ class ConditionDynamic < Condition
   end
 
 end
+
+class NoHandlerFound < Condition
+
+  attr_accessor :type, :name
+
+  def initialize type, name
+
+    # prevent endless loop (have to think about this again)
+    if name == :NoHandlerFound then
+      raise Exception, "no condition handler found, aborting."
+    end
+
+    @type = type
+    @name = name
+  end
+
+end
