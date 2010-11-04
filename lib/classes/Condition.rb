@@ -1,8 +1,8 @@
 class Condition
 
-  attr_accessor :dynamic, :trace, :message
+  attr_reader :dynamic, :trace, :message
 
-  def initialize message = ""
+  def initialize message = nil
 
     @message = message
     
@@ -15,8 +15,6 @@ end
 
 class ConditionDynamic < Condition
   
-  attr_accessor :params
-
   def initialize *params
 
     super params
@@ -28,23 +26,6 @@ class ConditionDynamic < Condition
 
   def get key
     @params[key]
-  end
-
-end
-
-class NoHandlerFound < Condition
-
-  attr_accessor :type, :name
-
-  def initialize type, name
-
-    # prevent endless loop (have to think about this again)
-    if name == :NoHandlerFound then
-      raise Exception, "no condition handler found, aborting."
-    end
-
-    @type = type
-    @name = name
   end
 
 end

@@ -1,11 +1,13 @@
 
-class ConditionNotHandledError < StandardError; end
+class ConditionNotHandledError < StandardError ; end
 class ConditionHandledError < StandardError
 
-  attr_accessor :value, :condition
+  attr_reader :value, :condition
 
   def initialize info
 
+    super info[:value]
+    
     @value = info[:value]
     @condition = info[:condition]
 

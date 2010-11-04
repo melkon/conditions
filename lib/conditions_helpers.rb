@@ -5,12 +5,14 @@ class Handler
 
   def self.get(type, condition_name)
 
-    error(:NoHandlerFound, type, condition_name) if (!@@types[type].has_key?(condition_name) or @@types[type][condition_name].empty?)
+    if (!@@types[type].has_key?(condition_name)) or (@@types[type][condition_name].empty?)
+      return nil
+    end
 
     @@types[type][condition_name].reverse_each do |condition|
 
       condition[:name] = condition_name
-      self.unset(type, condition)
+      self.unset(type, condition) if condition[:raise]
 
       yield condition
 

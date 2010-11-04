@@ -1,0 +1,4 @@
+Notes:
+
+use return in combination with proc carefully.
+It may return unexpected (because proc behaves more like a block than a function)

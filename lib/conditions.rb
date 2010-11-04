@@ -18,7 +18,7 @@ def signal condition_name, *params
       when 2 then handler[:block].call condition, value
     end
 
-    raise(ConditionHandledError, :value => value, :handler => handler) if handler[:raise]
+    raise(ConditionHandledError, :value => value, :condition => handler) if handler[:raise]
 
   end
 
@@ -30,7 +30,7 @@ def error condition, *params
 
   signal condition, *params
 
-  raise ConditionNotHandledError, *params
+  raise ConditionNotHandledError, "condition #{condition} was not handled"
 
 end
 
