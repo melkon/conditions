@@ -4,77 +4,85 @@ require "conditions"
 #  usage
 # #########
 
-# returns "foo"
+=begin
 
-handle :Condition => lambda { signal :Another_condition } do
+(defun parse-log-entry (text)
+  (if (well-formed-log-entry-p text)
+    (make-instance 'log-entry ...)
+    (error 'malformed-log-entry-error :text text)))
 
-  handle :Condition => lambda {
+(defun parse-log-file (file)
+  (with-open-file (in file :direction :input)
+    (loop for text = (read-line in nil nil) while text
+       for entry = (handler-case (parse-log-entry text)
+                     (malformed-log-entry-error () nil))
+       when entry collect it)))
 
-    error :Condition
+(defun parse-log-file (file)
+  (with-open-file (in file :direction :input)
+    (loop for text = (read-line in nil nil) while text
+       for entry = (restart-case (parse-log-entry text)
+                     (skip-log-entry () nil))
+       when entry collect it)))
 
-    "foo"
+(defun log-analyzer ()
+  (dolist (log (find-all-logs))
+    (analyze-log log)))
 
-  } do
+=end
 
-    error :Condition
+def well_formed? text
+  "yes" == text ? true : false
+end
 
-    "bar"
+def parse_log_entry text
 
+  if !well_formed? text
+    error :MalformedLogEntryError
   end
-  
-end
 
-# returns "bar"
-handle :Condition, {:Another => lambda { |condition|
-
-  "foo"
-
-}}, :Yet_another, {:Last => lambda { |condition|
-
-    p condition.get 0
-    p condition.trace
-
-  "bar"
-
-}} do
-
-  error :Last, "muff"
-
-  "baz"
+  text
 
 end
 
-func = lambda { "foo" }
+def parse_log_file file
 
-bind :Condition => func
+  File.new(file) do |line|
 
-# "foo"
-p(signal :Condition)
-
-unbind :Condition => func
-
-# nil
-p(signal :Condition)
-
-def hallo x
-
-  restart :Restart => proc { x = hallo 0 },
-           :Test => proc { x = hallo 0 - x } do
-
-    if x < 0 then
-      error :Condition
-    else
-      x = x + 1
+    entry = restart :SkipLogEntry => lambda { nil } do
+      parse_log_entry line
     end
 
-  end
+    if entry then entry end
 
-  x
+  end
 
 end
 
-bind :Condition => lambda { invoke :Test } do
+=begin
+(defun log-analyzer ()
+  (dolist (log (find-all-logs))
+    (analyze-log log)))
 
-  p hallo -1
+(defun analyze-log (log)
+  (dolist (entry (parse-log-file log))
+    (analyze-entry entry)))
+
+=end
+
+def log_analyzer
+  find_logs do |log|
+    analyze_log log
+  end
+end
+
+def analyze_log log
+  parse_log_file log
+end
+
+def find_logs
+
+  yield "./log"
+  yield "./another-log"
 
 end
