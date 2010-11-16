@@ -45,12 +45,18 @@ def handle *conditions, &block
   value = begin
     block.call
   rescue ConditionHandledError => ex
-    removed_condition = ex.condition
+
+    # if condition doesnt belong to this block,
+    # continue unwinding the stack
+    if !find_handler(ex.condition, conditions) then
+      raise ConditionHandledError, :value => ex.value, :condition => ex.condition
+    end
+
     ex.value
   end
-
+  
   conditions.each do |condition|
-    Handler::unset(:condition, condition) unless condition == removed_condition
+    Handler::unset(:condition, condition)
   end
 
   value
@@ -99,21 +105,31 @@ def restart *restarts, &block
 
   restarts.each { |restart|  Handler::set(:restart, restart)}
 
-  begin
+  value = begin
     block.call
-  rescue ConditionHandledError => ex
+  rescue RestartHandledError => ex
+
+    # if restart doesnt belong to this block,
+    # continue unwinding the stack
+    if !find_handler(ex.restart, restarts) then
+      raise RestartHandledError, :value => ex.value, :restart => ex.restart
+    end
+
     ex.value
+
   end
 
   restarts.each { |restart| Handler::unset(:restart, restart)}
 
+  value
+
 end
 
 # invoke has to throw a conditon if no restart is found
-def invoke restart_name
+def invoke restart_name, *params
 
-  value = Handler::get(:restart, restart_name) { |restart| restart[:block].call }
-
-  raise ConditionHandledError, :value => value, :condition => restart_name
+  Handler::get(:restart, restart_name) do |restart|
+    raise RestartHandledError, :value => restart[:block].call(*params), :restart => restart_name
+  end
 
 end

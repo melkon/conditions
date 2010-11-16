@@ -12,7 +12,6 @@ class Handler
     @@types[type][condition_name].reverse_each do |condition|
 
       condition[:name] = condition_name
-      self.unset(type, condition) if condition[:raise]
 
       yield condition
 
@@ -97,5 +96,19 @@ def generate_condition(condition_name, *params)
   end
   
   Object::const_get(condition_name).new(*params)
+
+end
+
+def find_handler(name, handlers)
+
+  handlers.each do |handler|
+
+    if name == handler[:name]
+      return true
+    end
+    
+  end
+  
+  false
 
 end

@@ -14,3 +14,18 @@ class ConditionHandledError < StandardError
   end
 
 end
+
+class RestartHandledError < StandardError
+
+  attr_reader :value, :restart
+
+  def initialize info
+
+    super info[:value]
+
+    @value = info[:value]
+    @restart = info[:restart]
+
+  end
+
+end
