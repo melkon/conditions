@@ -59,6 +59,7 @@ def handle *conditions, &block
     end
 
     ex.value
+    
   end
   
   conditions.each do |condition|
