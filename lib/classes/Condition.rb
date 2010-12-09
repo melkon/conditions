@@ -1,6 +1,6 @@
 class Condition
 
-  attr_reader :dynamic, :trace, :message
+  attr_reader :dynamic, :trace, :message, :restarts
 
   def initialize message = nil
 
@@ -8,6 +8,7 @@ class Condition
     
     @trace = Kernel.caller
     @dynamic = false
+    @restarts = Handler::get_restarts
 
   end
 
@@ -29,3 +30,7 @@ class ConditionDynamic < Condition
   end
 
 end
+
+class DynamicConditionCreation  < Condition ; end
+class ConditionNotDefined       < Condition ; end
+class NoDynamicConditionAllowed < Condition ; end

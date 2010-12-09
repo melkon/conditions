@@ -19,11 +19,17 @@ class Handler
 
   end
 
+  def self.get_restarts
+
+    @@types[:restart]
+
+  end
+
   def self.set(type, condition)
 
     @@types[type][condition[:name]] = [] unless @@types[type][condition[:name]]
     @@types[type][condition[:name]].push({:block => condition[:block],
-                                           :raise => condition[:raise]})
+                                          :raise => condition[:raise]})
 
   end
 
@@ -33,7 +39,12 @@ class Handler
 
       if saved_condition[:block] == condition[:block]
 
-        @@types[type][condition[:name]].delete_at(index)
+        # completely delete the restart-entry if no block is given anymore
+        if 2 >@@types[type][condition[:name]].size then
+          @@types[type].delete(condition[:name])
+        else
+          @@types[type][condition[:name]].delete_at(index)
+        end
 
         # unset only one condition
         return true
@@ -41,12 +52,6 @@ class Handler
       end
 
     end
-
-  end
-
-  def self.unset_all(type, condition_name)
-
-    @@types[type][condition_name] = Hash.new
 
   end
 
@@ -88,11 +93,13 @@ end
 def generate_condition(condition_name, *params)
 
   if !Kernel.const_defined? condition_name then
+    restart :Echo        => lambda { p "#{condition_name} dynamically created" },
+            :WriteToFile => lambda { p "will be implemented anytime soon" },
+            :Define      => lambda { Object::const_set(condition_name, Class.new(ConditionDynamic))
+                                     notice :DynamicConditionCreation, condition_name } do
 
-    # @@todo: implement a notice if condition is dynamically created
-    # @@todo: mabye make use of restarts to let the user decide
-    Object::const_set(condition_name, Class.new(ConditionDynamic))
-  
+        error :ConditionNotDefined, condition_name
+    end
   end
   
   Object::const_get(condition_name).new(*params)

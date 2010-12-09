@@ -33,7 +33,9 @@ end
 
 def log_analyzer
 
-  handle :MalformedLogEntryError => proc { invoke :UseValue, "failed\n" } do
+  handle :ConditionNotDefined      => lambda { invoke :Define },
+         :MalformedLogEntryError   => lambda { invoke :UseValue, "failed\n" },
+         :DynamicConditionCreation => lambda { invoke :Echo } do
     find_logs do |log|
       analyze_log log
     end

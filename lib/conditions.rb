@@ -34,6 +34,12 @@ def error condition, *params
 
 end
 
+def notice condition, *params
+
+  signal condition, *params
+
+end
+
 def handle *conditions, &block
 
   conditions = parse_handlers conditions
@@ -48,7 +54,7 @@ def handle *conditions, &block
 
     # if condition doesnt belong to this block,
     # continue unwinding the stack
-    if !find_handler(ex.condition, conditions) then
+    if !find_handler(ex.condition[:name], conditions) then
       raise ConditionHandledError, :value => ex.value, :condition => ex.condition
     end
 
@@ -118,7 +124,7 @@ def restart *restarts, &block
     ex.value
 
   end
-
+  
   restarts.each { |restart| Handler::unset(:restart, restart)}
 
   value
@@ -131,5 +137,7 @@ def invoke restart_name, *params
   Handler::get(:restart, restart_name) do |restart|
     raise RestartHandledError, :value => restart[:block].call(*params), :restart => restart_name
   end
+
+  raise RestartNotFoundError, restart_name
 
 end
