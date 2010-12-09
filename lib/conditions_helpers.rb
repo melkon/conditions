@@ -93,10 +93,9 @@ end
 def generate_condition(condition_name, *params)
 
   if !Kernel.const_defined? condition_name then
-    restart :Echo        => lambda { p "#{condition_name} dynamically created" },
-            :WriteToFile => lambda { p "will be implemented anytime soon" },
+    restart :WriteToFile => lambda { p "will be implemented anytime soon" },
             :Define      => lambda { Object::const_set(condition_name, Class.new(ConditionDynamic))
-                                     notice :DynamicConditionCreation, condition_name } do
+                                     notice :DynamicConditionCreation, "#{condition_name} dynamically created" } do
 
         error :ConditionNotDefined, condition_name
     end

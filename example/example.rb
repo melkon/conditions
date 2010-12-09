@@ -1,5 +1,7 @@
 require "conditions"
 
+bind :NoticeSignaled => lambda { invoke :Suppress }
+
 def parse_log_entry text
 
   if !well_formed? text then
@@ -34,8 +36,7 @@ end
 def log_analyzer
 
   handle :ConditionNotDefined      => lambda { invoke :Define },
-         :MalformedLogEntryError   => lambda { invoke :UseValue, "failed\n" },
-         :DynamicConditionCreation => lambda { invoke :Echo } do
+         :MalformedLogEntryError   => lambda { invoke :UseValue, "failed\n" } do
     find_logs do |log|
       analyze_log log
     end
