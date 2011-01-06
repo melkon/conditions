@@ -96,6 +96,24 @@ def notice condition, message
 
 end
 
+#
+# handles a signaled condition
+#
+# handles a condition signaled by #signal or any other signaling method
+# by registering handlers for given conditions.
+#
+# if a handler matches a condition, it will be executed and after that,
+# the stack will be unwound to the point where the latest #handle registered
+# a handler for given condition returning the value of the executed handler.
+#
+# @param *conditions conditions which shall be catched by #handle, 
+# @param &block block which will be executed normally if no condition will be signaled
+#
+# @return return value of &block
+# @return if a condition is catched, the return value of the registered handler
+#
+# @see #parse_handlers for syntax information on *conditions
+#
 def handle *conditions, &block
 
   conditions = parse_handlers conditions
@@ -126,6 +144,13 @@ def handle *conditions, &block
 
 end
 
+#
+# binds a handler to a condition
+#
+# #bind works similiar to #handle but instead of unwinding the stack,
+# #bind don't.
+#
+#
 def bind *conditions, &block
 
   conditions = parse_handlers conditions
@@ -135,13 +160,30 @@ def bind *conditions, &block
   end
   
   value = true
-
   if block_given? then
 
-    value = block.call
+    value = begin
+      
+      block.call
 
-    conditions.each do |condition|
-      Handler::unset(:condition, condition)
+      conditions.each do |condition|
+        Handler::unset(:condition, condition)
+      end
+
+    # it is possible that a Condition has a handler registered by #handle
+    # and therefore will unwind the stack. but if a handler bound by #bind
+    # and #bind is used with a block, the bound handler will not be unregistered.
+    # therefore, catch the exception intended for #handle
+    # unregister the handler registered by #bind
+    # and rethrow the exception again to reach the proper #handle
+    rescue ConditionHandledError => ex
+
+      conditions.each do |condition|
+        Handler::unset(:condition, condition)
+      end
+      
+      raise ConditionHandledError, :value => ex.value, :condition => ex.condition
+
     end
 
   end

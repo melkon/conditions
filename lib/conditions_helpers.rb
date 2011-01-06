@@ -19,10 +19,12 @@ class Handler
 
   end
 
-  def self.get_restarts
+  def self.get_restarts()
+    return @@types[:restarts];
+  end
 
-    @@types[:restart]
-
+  def self.get_handlers()
+    return @@types[:condition];
   end
 
   def self.set(type, condition)

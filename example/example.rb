@@ -6,7 +6,7 @@ def parse_log_entry text
 
   if !well_formed? text then
 
-    restart :UseValue => proc { |value| text = value },
+    restart :UseValue     => proc { |value| text = value },
             :ReparseEntry => proc { |fixed| text = parse_log_entry fixed } do
 
       error :MalformedLogEntryError
@@ -35,8 +35,8 @@ end
 
 def log_analyzer
 
-  handle :ConditionNotDefined      => lambda { invoke :Define },
-         :MalformedLogEntryError   => lambda { invoke :UseValue, "failed\n" } do
+  bind :ConditionNotDefined    => lambda { invoke :Define },
+       :MalformedLogEntryError => lambda { invoke :UseValue, "failed\n" } do
     find_logs do |log|
       analyze_log log
     end
