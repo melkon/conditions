@@ -148,8 +148,22 @@ end
 # binds a handler to a condition
 #
 # #bind works similiar to #handle but instead of unwinding the stack,
-# #bind don't.
+# #bind returns the value of the last called handler. 
+# 
+# caveat:
+# 
+# *if* there's a condition bound by #handle in the upper callstack
+# *and* the same condition is bound by #bind inside of this #handle,
+# the system will unwind the stack to #handle - but the condition's handler 
+# bound by #bind will be executed and properly unregistered.
 #
+# @param *conditions conditions which shall be bound by #bind,
+# @param &block block which will be executed normally if no condition will be signaled
+#
+# @return return value of &block
+# @return if a condition is signaled and bound by #bind, it returns value of the last registered handler
+#
+# @see #parse_handlers for syntax information on *conditions
 #
 def bind *conditions, &block
 
@@ -192,6 +206,18 @@ def bind *conditions, &block
 
 end
 
+#
+# unregisters a bound condition
+#
+# if bind is used without a block,
+# #unbind is used to unregister the condition's handler
+#
+# @param *conditions conditions which shall be unregistered by #unbind,
+#
+# @return (Boolean) true
+# 
+# @see #parse_handlers for syntax information on *conditions
+#
 def unbind *conditions
 
   conditions = parse_handlers conditions
