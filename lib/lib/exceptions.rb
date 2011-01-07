@@ -1,6 +1,6 @@
 
 class ConditionNotHandledError < StandardError ; end
-class ConditionHandledError < StandardError
+class ConditionHandled < StandardError
 
   attr_reader :value, :condition
 
@@ -15,7 +15,7 @@ class ConditionHandledError < StandardError
 
 end
 class RestartNotFoundError < StandardError ; end
-class RestartHandledError < StandardError
+class RestartHandled < StandardError
 
   attr_reader :value, :restart
 

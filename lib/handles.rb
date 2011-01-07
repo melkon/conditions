@@ -14,6 +14,8 @@
 # @return return value of &block
 # @return if a condition is catched, the return value of the registered handler
 #
+# @raises ConditionHandled if the catched condition doesnt belong to current block
+#
 # @see #parse_handlers for syntax information on *conditions
 #
 def handle *conditions, &block
@@ -26,12 +28,12 @@ def handle *conditions, &block
 
   value = begin
     block.call
-  rescue ConditionHandledError => ex
+  rescue ConditionHandled => ex
 
     # if condition doesnt belong to this block,
     # continue unwinding the stack
     if !find_handler(ex.condition[:name], conditions) then
-      raise ConditionHandledError, :value => ex.value, :condition => ex.condition
+      raise ConditionHandled, :value => ex.value, :condition => ex.condition
     end
 
     ex.value
@@ -92,13 +94,13 @@ def bind *conditions, &block
     # therefore, catch the exception intended for #handle
     # unregister the handler registered by #bind
     # and rethrow the exception again to reach the proper #handle
-    rescue ConditionHandledError => ex
+    rescue ConditionHandled => ex
 
       conditions.each do |condition|
         Handler::unset(:condition, condition)
       end
 
-      raise ConditionHandledError, :value => ex.value, :condition => ex.condition
+      raise ConditionHandled, :value => ex.value, :condition => ex.condition
 
     end
 
@@ -116,7 +118,7 @@ end
 #
 # @param *conditions conditions which shall be unregistered by #unbind,
 #
-# @return (Boolean) true
+# @return [Boolean] true
 #
 # @see #parse_handlers for syntax information on *conditions
 #

@@ -13,7 +13,7 @@
 #
 # @return value the return value of the called handler.
 #
-# @raises ConditionHandledError if a handler is established with #handle
+# @raises ConditionHandled if a handler is established with #handle
 #
 def signal condition_name, *params
 
@@ -29,7 +29,7 @@ def signal condition_name, *params
       when 2 then handler[:block].call condition, value
     end
 
-    raise(ConditionHandledError, :value => value, :condition => handler) if handler[:raise]
+    raise(ConditionHandled, :value => value, :condition => handler) if handler[:raise]
 
   end
 
