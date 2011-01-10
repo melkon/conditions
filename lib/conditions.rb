@@ -1,12 +1,14 @@
-# base condition class
-require "conditions/defaults"
+# base condition classes
+require "conditions/definitions/defaults"
 
-require "lib/helpers"
-require "lib/exceptions"
+# helper functions and exception definitions
+require "conditions/lib/helpers"
+require "conditions/lib/exceptions"
 
-require "signals"
-require "handles"
-require "restarts"
+# main api
+require "conditions/signals"
+require "conditions/handles"
+require "conditions/restarts"
 
 
 

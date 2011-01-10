@@ -1,4 +1,3 @@
-
 class ConditionNotHandledError < StandardError ; end
 class ConditionHandled < StandardError
 
@@ -14,6 +13,7 @@ class ConditionHandled < StandardError
   end
 
 end
+
 class RestartNotFoundError < StandardError ; end
 class RestartHandled < StandardError
 
