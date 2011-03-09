@@ -10,7 +10,9 @@ THIS IS HIGHLY ALPHA! DO NOT USE IN PRODUCTION!
 (but syntax is most likely not going to change)
 
 For more information, read covering blog posts on:
+
 http://www.andre-gawron.de/123/the-diversity-of-error-handling
+
 http://www.andre-gawron.de/187/road-to-condition
 
 == Monkeypatching
