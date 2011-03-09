@@ -1,30 +1,34 @@
-class ConditionNotHandledError < StandardError ; end
-class ConditionHandled < StandardError
+module Conditions::Exception
 
-  attr_reader :value, :condition
+  class ConditionNotHandledError < StandardError ; end
+  class ConditionHandled < StandardError
 
-  def initialize info
+    attr_reader :value, :condition
 
-    super info[:value]
-    
-    @value = info[:value]
-    @condition = info[:condition]
+    def initialize info
+
+      super info[:value]
+
+      @value = info[:value]
+      @condition = info[:condition]
+
+    end
 
   end
 
-end
+  class RestartNotFoundError < StandardError ; end
+  class RestartHandled < StandardError
 
-class RestartNotFoundError < StandardError ; end
-class RestartHandled < StandardError
+    attr_reader :value, :restart
 
-  attr_reader :value, :restart
+    def initialize info
 
-  def initialize info
+      super info[:value]
 
-    super info[:value]
+      @value = info[:value]
+      @restart = info[:restart]
 
-    @value = info[:value]
-    @restart = info[:restart]
+    end
 
   end
 

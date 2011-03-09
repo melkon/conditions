@@ -1,3 +1,5 @@
+module Conditions ; end
+
 # base condition classes
 require "conditions/definitions/defaults"
 
@@ -10,5 +12,6 @@ require "conditions/signals"
 require "conditions/handles"
 require "conditions/restarts"
 
-
-
+class Object
+  include Conditions
+end

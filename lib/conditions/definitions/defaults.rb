@@ -8,7 +8,7 @@ class Condition
     
     @trace = Kernel.caller
     @dynamic = false
-    @restarts = Handler::get_restarts
+    @restarts = Utils::Handler::get_restarts
 
   end
 
