@@ -1,4 +1,7 @@
-module Conditions ; end
+# main api
+require "conditions/signals"
+require "conditions/handles"
+require "conditions/restarts"
 
 # base condition classes
 require "conditions/definitions/defaults"
@@ -7,11 +10,7 @@ require "conditions/definitions/defaults"
 require "conditions/lib/helpers"
 require "conditions/lib/exceptions"
 
-# main api
-require "conditions/signals"
-require "conditions/handles"
-require "conditions/restarts"
-
+# remove this and the puppy will cry
 class Object
   include Conditions
 end
