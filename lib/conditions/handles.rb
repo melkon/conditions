@@ -84,11 +84,15 @@ module Conditions
 
       value = begin
 
-        block.call
+        # tmp save the value of the callback
+        # and return it after the conditions were unset
+        value = block.call
 
         conditions.each do |condition|
           Utils::Handler::unset(:condition, condition)
         end
+
+        value
 
       # it is possible that a Condition has a handler registered by #handle
       # and therefore will unwind the stack. but if a handler bound by #bind

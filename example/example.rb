@@ -2,6 +2,10 @@ require "conditions"
 
 bind :NoticeSignaled => lambda { invoke :Suppress }
 
+p (bind :NoticeSignaled => lambda { invoke :Suppress } do
+  "block value is returning!"
+end)
+
 def parse_log_entry text
 
   if !well_formed? text then

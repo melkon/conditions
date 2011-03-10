@@ -11,8 +11,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/melkon/conditions"
   s.summary     = %q{Implements the Lisp's condition system in Ruby}
   s.description = %q{Implements the Lisp's condition system in Ruby}
-
-  s.rubyforge_project = "conditions"
+  spec.license = 'BSD'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
