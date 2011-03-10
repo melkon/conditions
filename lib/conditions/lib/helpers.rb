@@ -5,13 +5,31 @@ module Conditions::Utils
     @@types = {:condition => {},
                :restart   => {}}
 
-    def self.get(type, condition_name)
+    #
+    # yields every registered condition for given type
+    #
+    # opts:
+    #   :reverse => true|false [default: true] LIFO or FIFO of yielded handlers
+    #
+    # @param [Symbol] supported types: :condition, :restart
+    # @param [String, Symbol] name of the condition
+    # @param [Hash] opts current available: :reverse => true
+    #
+    def self.get(type, condition_name, opts = {})
 
       if (!@@types[type].has_key?(condition_name)) or (@@types[type][condition_name].empty?)
         return nil
       end
 
-      @@types[type][condition_name].reverse_each do |condition|
+      opts[:reserve] = true unless opts[:reserve] === false
+
+      if opts[:reserve] === true
+        direction = :reverse_each
+      else
+        direction = :each
+      end
+
+      @@types[type][condition_name].send(direction) do |condition|
 
         condition[:name] = condition_name
 
