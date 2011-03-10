@@ -34,3 +34,5 @@ end
 class DynamicConditionCreation  < Condition ; end
 class ConditionNotDefined       < Condition ; end
 class NoDynamicConditionAllowed < Condition ; end
+
+class NoticeSignaled < Condition ; end

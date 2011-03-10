@@ -3,7 +3,7 @@ module Conditions::Utils
   class Handler
 
     @@types = {:condition => {},
-               :restart   => {}}
+                :restart   => {}}
 
     #
     # yields every registered condition for given type
@@ -11,11 +11,13 @@ module Conditions::Utils
     # opts:
     #   :reverse => true|false [default: true] LIFO or FIFO of yielded handlers
     #
-    # @param [Symbol] supported types: :condition, :restart
+    # @param [String, Symbol] supported types: :condition, :restart
     # @param [String, Symbol] name of the condition
     # @param [Hash] opts current available: :reverse => true
     #
     def self.get(type, condition_name, opts = {})
+
+      condition_name = Utils::normalize(condition_name)
 
       if (!@@types[type].has_key?(condition_name)) or (@@types[type][condition_name].empty?)
         return nil
@@ -49,6 +51,8 @@ module Conditions::Utils
 
     def self.set(type, condition)
 
+      condition[:name] = Utils::normalize(condition[:name])
+
       @@types[type][condition[:name]] = [] unless @@types[type][condition[:name]]
       @@types[type][condition[:name]].push({:block => condition[:block],
                                             :raise => condition[:raise]})
@@ -56,6 +60,8 @@ module Conditions::Utils
     end
 
     def self.unset(type, condition)
+
+      condition[:name] = Utils::normalize(condition[:name])
 
       @@types[type][condition[:name]].each_with_index do |saved_condition, index|
 
@@ -88,6 +94,12 @@ module Conditions::Utils
   # the simpliest is:
   #
   # :HandlerName => callback[, ...]
+  #
+  # class names are also supported:
+  #
+  # HandlerNAme => callback[, ...]
+  #
+  # class names as well as symbol will be casted to strings internally.
   #
   # currently, the callback has to be a lambda or
   # a proc function to work within the condition system.
@@ -145,13 +157,14 @@ module Conditions::Utils
   #
   # creates a condition object
   #
-  # creates a condition object of given conditon_name symbol.
+  # creates a condition object of given conditon_name symbol or string-class
   # if the requested condition_name is not a existing class,
   # #generate_condition registers a restart offering to dynamically create class.
+  # currently, the new class will be created in the module Conditions.
   #
   # this condition class inherits the class ConditionDynamic.
   #
-  # @param [Symbol] condition_name the condition class' name to instance. it must start with an upper case letter!
+  # @param [String, Symbol] condition_name the condition class' name to instance. it must start with an upper case letter!
   # @param *params parameters forwarded to the condition class' constructor
   #
   # @return [Condition] object of the demanded condition class
@@ -162,29 +175,37 @@ module Conditions::Utils
   #
   def self.generate_condition(condition_name, *params)
 
-    if !Conditions.const_defined? condition_name then
-      restart :WriteToFile => lambda { p "will be implemented anytime soon" },
-              :Define      => lambda { Conditions::const_set(condition_name, Class.new(ConditionDynamic))
-                                       notice :DynamicConditionCreation, "#{condition_name} dynamically created" } do
+    if not condition_name.kind_of?(Class)
 
-          error :ConditionNotDefined, condition_name
+      if !Conditions.const_defined? condition_name then
+        restart :WriteToFile => lambda { p "will be implemented anytime soon" },
+                 :Define      => lambda { Conditions::const_set(condition_name, Class.new(ConditionDynamic))
+                                           notice :DynamicConditionCreation, "#{condition_name} dynamically created" } do
+
+            error :ConditionNotDefined, condition_name
+        end
       end
-    end
 
-    Conditions::const_get(condition_name).new(*params)
+      condition_name = Conditions::const_get(condition_name)
+
+    end
+    
+    condition_name.new(*params)
 
   end
 
   #
   # finds a handler in the given hash
   #
-  # @param [Symbol] the handler / restart to find
+  # @param [String, Symbol] the handler / restart to find
   # @param [Hash] a hash of handlers / restarts: {{:name => :Handlername}[, ...]}
   #
   # @return [Boolean] true if found
   # @return [Boolean] false if not
   #
   def self.find_handler(name, handlers)
+
+    name = Utils::normalize(name)
 
     handlers.each do |handler|
 
@@ -196,6 +217,10 @@ module Conditions::Utils
 
     false
 
+  end
+
+  def self.normalize(name)
+    return name.to_s
   end
 
 end

@@ -1,6 +1,8 @@
 require "conditions"
 
-bind :NoticeSignaled => lambda { invoke :Suppress }
+class MalformedLogEntryError < Condition ; end
+
+bind :NoticeSignaled => lambda { invoke :Suppress}
 
 p (bind :NoticeSignaled => lambda { invoke :Suppress } do
   "block value is returning!"
@@ -13,7 +15,7 @@ def parse_log_entry text
     restart :UseValue     => proc { |value| text = value },
             :ReparseEntry => proc { |fixed| text = parse_log_entry fixed } do
 
-      error :MalformedLogEntryError
+      error MalformedLogEntryError
 
     end
     
