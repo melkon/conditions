@@ -15,14 +15,14 @@ http://www.andre-gawron.de/123/the-diversity-of-error-handling
 
 http://www.andre-gawron.de/187/road-to-condition
 
-== Monkeypatching
+== Patching
 
-Yeah, currently it's extending the Object class. Why? Kinda easy.
-I don't want to write Conditions::handle (etc). IT'S TOO FRAKIN LONG!
+It's currently extending the Object class. Why? Kinda easy.
+I don't want to write Conditions::handle (etc).
 
-CD::handle maybe. Currently the Object class is patched as soon as
-Conditions are required. I'm lookin into actually check before patching if
-there are other methods already in the Object class and probably not allow
+The Object class is patched as soon as Conditions are required. 
+I'm lookin into actually check before patching if there are other
+methods already in the Object class and probably not allow
 patching then. But that's for the future, it's alpha, right?
 
 == I'd like to patch and / or help maintain Conditions. How can I?
