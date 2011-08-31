@@ -1,0 +1,66 @@
+
+lib/conditions/handles.rb,165
+module ConditionsConditions1,0
+  def handle *conditions, &blockhandle23,863
+  def bind *conditions, &blockbind74,2386
+  def unbind *conditionsunbind131,3918
+
+lib/conditions/version.rb,33
+module ConditionsConditions1,0
+
+lib/conditions/lib/helpers.rb,575
+module Conditions::UtilsConditions1,0
+  class HandlerHandler3,26
+    def self.get(type, condition_name, opts = {})get18,463
+    def self.get_restarts()get_restarts44,1026
+    def self.get_handlers()get_handlers48,1096
+    def self.set(type, condition)set52,1167
+    def self.unset(type, condition)unset62,1502
+  def self.parse_handlers(handlers)parse_handlers124,3345
+  def self.generate_condition(condition_name, *params)generate_condition176,4695
+  def self.find_handler(name, handlers)find_handler206,5621
+  def self.normalize(name)normalize222,5819
+
+lib/conditions/lib/exceptions.rb,415
+module Conditions::ExceptionConditions1,0
+  class ConditionNotHandledError < StandardError ; endConditionNotHandledError3,30
+  class ConditionHandled < StandardErrorConditionHandled4,85
+    def initialize infoinitialize8,163
+  class RestartNotFoundError < StandardError ; endRestartNotFoundError19,295
+  class RestartHandled < StandardErrorRestartHandled20,346
+    def initialize infoinitialize24,420
+
+lib/conditions/definitions/defaults.rb,506
+class ConditionCondition1,0
+  def initialize message = nilinitialize5,70
+class ConditionDynamic < ConditionConditionDynamic17,236
+  def initialize *paramsinitialize19,274
+  def get keyget28,371
+class DynamicConditionCreation  < Condition ; endDynamicConditionCreation34,414
+class ConditionNotDefined       < Condition ; endConditionNotDefined35,464
+class NoDynamicConditionAllowed < Condition ; endNoDynamicConditionAllowed36,514
+class NoticeSignaled < Condition ; enNoticeSignaled38,565
+
+lib/conditions/signals.rb,176
+module ConditionsConditions1,0
+  def signal condition_name, *paramssignal20,643
+  def error condition, *paramserror56,1704
+  def notice condition, messagenotice84,2430
+
+lib/conditions/restarts.rb,130
+module ConditionsConditions1,0
+  def restart *restarts, &blockrestart26,793
+  def invoke restart_name, *paramsinvoke66,1846
+
+lib/conditions.rb,27
+class ObjectObject14,320
+
+example/example.rb,365
+class MalformedLogEntryError < Condition ; endMalformedLogEntryError3,22
+def parse_log_entry textparse_log_entry11,216
+def parse_log_file fileparse_log_file28,480
+def log_analyzerlog_analyzer42,670
+def analyze_log loganalyze_log53,891
+def well_formed? textwell_formed?59,978
+def analyze_entry entryanalyze_entry63,1038
+def find_logsfind_logs67,1077
